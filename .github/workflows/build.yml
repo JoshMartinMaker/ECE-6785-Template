@@ -1,0 +1,44 @@
+name: Build firmware
+on: [push, pull_request]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout with submodules
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          path: ${{github.workspace}}/source
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake \
+            build-essential \
+            gcc-arm-none-eabi \
+            libnewlib-arm-none-eabi \
+            libstdc++-arm-none-eabi-newlib \
+            openocd \
+            python3
+
+      - name: Create Build Environment
+        working-directory: ${{github.workspace}}
+        run: cmake -E make_directory ${{github.workspace}}/build
+
+      - name: Configure CMake
+        shell: bash
+        working-directory: ${{github.workspace}}/source
+        run: |
+          cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+            -B ${{github.workspace}}/build \
+            -S .
+
+      - name: Build
+        working-directory: ${{github.workspace}}/build
+        shell: bash
+        run: cmake --build . --config $BUILD_TYPE --parallel $(nproc)
