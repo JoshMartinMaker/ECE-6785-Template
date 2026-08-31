@@ -1,0 +1,31 @@
+logFile $WORKING/log/hello_world-renode.log True
+
+using sysbus
+
+$name?="rpi_pico"
+mach create $name
+
+machine LoadPlatformDescription @platforms/cpus/rpi_pico_rp2040_w.repl
+
+# cpu0 LogFunctionNames true
+# sysbus LogAllPeripheralsAccess true
+# cpu0 CreateExecutionTracing "tracer_name" $WORKING/log/trace PC
+# tracer_name TrackMemoryAccesses
+
+showAnalyzer uart0
+# uart0 RecordToAsciinema $WORKING/log/hello_world-asciinema
+
+macro reset
+"""
+    # This is the ROM bootloader
+    sysbus LoadELF @https://github.com/raspberrypi/pico-bootrom-rp2040/releases/download/b2/b2.elf
+    sysbus LoadELF $WORKING/build/pico-sdk/src/rp2040/boot_stage2/bs2_default.elf
+    sysbus LoadELF $ELF
+    cpu0 VectorTableOffset `sysbus GetSymbolAddress "__vectors"`
+    cpu1 IsHalted true
+    cpu0 EnableProfilerCollapsedStack $WORKING/log/hello_world-profile true
+"""
+
+runMacro $reset
+
+machine StartGdbServer 3333

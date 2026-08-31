@@ -1,0 +1,16 @@
+[submodule "pico-sdk"]
+	path = lib/pico-sdk
+	url = git@github.com:raspberrypi/pico-sdk.git
+    shallow = true
+    branch = 2.0.0
+    ignore = dirty
+[submodule "freertos"]
+	path = lib/freertos
+	url = git@github.com:FreeRTOS/FreeRTOS-Kernel.git
+    shallow = true
+    branch = V11.1.0
+    ignore = dirty
+[submodule "unity"]
+	path = lib/unity
+	url = git@github.com:ThrowTheSwitch/Unity.git
+    ignore = dirty
